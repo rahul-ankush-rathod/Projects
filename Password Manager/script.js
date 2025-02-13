@@ -1,4 +1,3 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('passwordForm');
     const passwordList = document.getElementById('passwordList');
@@ -10,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let passwords = JSON.parse(localStorage.getItem('passwords') || '[]');
     renderPasswords();
 
-    // Form submit handler
+    // Handle form submission
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const website = document.getElementById('website').value.trim();
@@ -22,32 +21,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const encryptedPassword = btoa(password); // Simple base64 encoding for demonstration
+        const encryptedPassword = btoa(password); // Simple encoding
         passwords.push({ id: Date.now(), website, username, password: encryptedPassword });
         saveToLocalStorage();
         renderPasswords();
         form.reset();
+        
     });
 
-    // Generate password handler
+    // Generate a random password
     generateBtn.addEventListener('click', () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
-        let password = '';
+        let generatedPassword = '';
         for (let i = 0; i < 16; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
+            generatedPassword += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        document.getElementById('password').value = password;
+        document.getElementById('password').value = generatedPassword;
     });
 
     // Password strength indicator
-    document.getElementById('password').addEventListener('input', function(e) {
+    document.getElementById('password').addEventListener('input', (e) => {
         const strength = calculatePasswordStrength(e.target.value);
         const strengthBar = document.getElementById('passwordStrength');
         strengthBar.style.width = `${strength}%`;
         strengthBar.style.backgroundColor = getStrengthColor(strength);
     });
 
-    // Delete password handler
+    // Handle delete action
     passwordList.addEventListener('click', (e) => {
         if (e.target.classList.contains('delete-btn')) {
             const id = parseInt(e.target.dataset.id);
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const passwordSpan = e.target.previousElementSibling;
             const id = parseInt(e.target.dataset.id);
             const password = passwords.find(p => p.id === id).password;
-            
+
             if (passwordSpan.classList.contains('masked')) {
                 passwordSpan.textContent = atob(password);
                 passwordSpan.classList.remove('masked');
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Export handler
+    // Export passwords
     exportBtn.addEventListener('click', () => {
         const data = JSON.stringify(passwords);
         const blob = new Blob([data], { type: 'application/json' });
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         a.click();
     });
 
-    // Import handler
+    // Import passwords
     importBtn.addEventListener('change', (e) => {
         const file = e.target.files[0];
         const reader = new FileReader();
@@ -126,15 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function calculatePasswordStrength(password) {
         let strength = 0;
         if (password.length >= 8) strength += 25;
-        if (password.match(/[A-Z]/)) strength += 25;
-        if (password.match(/[0-9]/)) strength += 25;
-        if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+        if (/[A-Z]/.test(password)) strength += 25;
+        if (/[0-9]/.test(password)) strength += 25;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 25;
         return Math.min(strength, 100);
     }
 
     function getStrengthColor(strength) {
         if (strength < 40) return '#ff4444';
         if (strength < 70) return '#ffbb33';
-        return '#00C851';
+        if (strength > 70)return '#00C851'; 
     }
 });
